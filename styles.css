@@ -1,0 +1,175 @@
+/* Reset & body */
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  background-color: #f1f3f4;
+  color: #202124;
+}
+
+/* Toolbar */
+#toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #fff;
+  border-bottom: 1px solid #dadce0;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+#toolbar button {
+  border: none;
+  background: #fff;
+  padding: 6px 8px;
+  cursor: pointer;
+  font-size: 14px;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+#toolbar button:hover {
+  background: #f1f3f4;
+}
+
+#toolbar button:active {
+  background: #e8eaed;
+}
+
+#toolbar span#status {
+  margin-left: auto;
+  font-size: 13px;
+  color: #5f6368;
+}
+
+/* Editor */
+#editor {
+  width: 700px;
+  min-height: 900px;
+  padding: 100px 100px;
+  background: #fff;
+  border-radius: 3px;
+  border: 1px solid #ddd; /* subtle static border only */
+  outline: none; /* no black border on focus */
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  line-height: 1.6;
+  font-size: 16px;
+  color: #202124;
+  overflow-y: auto;
+}
+
+
+#editor p {
+  margin: 0 0 12px 0;
+}
+
+/* Highlight styles */
+.ai-highlight {
+  background-color: #fff3cd;
+  border-radius: 2px;
+  padding: 0 2px;
+}
+
+.highlight-chip {
+  display: inline-block;
+  margin: 2px 4px 2px 0;
+  padding: 2px 6px;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.pulse {
+  animation: pulseAnim 1.2s;
+}
+
+@keyframes pulseAnim {
+  0% { background-color: #fff3cd; }
+  50% { background-color: transparent; }
+  100% { background-color: #fff3cd; }
+}
+
+/* Feedback panel */
+#feedback {
+  width: 250px;
+  min-height: 40px;
+  background: #e8f0fe;
+  border: 1px solid #c6dafc;
+  border-radius: 6px;
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #1967d2;
+  line-height: 1.4;
+  word-wrap: break-word;
+  flex-shrink: 0; /* prevent shrinking */
+}
+
+/* Scrollbar style */
+#editor::-webkit-scrollbar {
+  width: 10px;
+}
+
+#editor::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.2);
+  border-radius: 5px;
+}
+
+#editor::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 5px;
+}
+
+#explainPopup {
+  position: fixed;
+  right: 20px;
+  top: 100px;
+  width: 300px;
+  max-height: 70%;
+  background: #e8f0fe;          /* match feedback background */
+  border: 1px solid #c6dafc;    /* match feedback border */
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(60,64,67,.3), 0 4px 8px rgba(60,64,67,.15); /* match feedback subtle shadow */
+  display: none;
+  overflow-y: auto;
+  z-index: 1000;
+  padding: 12px 16px;           /* same padding as feedback */
+  font-size: 14px;
+  color: #1967d2;               /* match feedback text color */
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+#explainHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid #ddd;
+  font-weight: bold;
+}
+
+#closeExplain {
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 16px;
+  padding: 0 4px;
+  color: #555;
+}
+
+#closeExplain:hover {
+  color: #000;
+}
+
+
+#mainContainer {
+  display: flex;
+  justify-content: center; /* center the editor horizontally */
+  align-items: flex-start;
+  margin-top: 50px;
+  gap: 40px; 
+}

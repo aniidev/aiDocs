@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Study Helper</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="toolbar">
+    <button id="boldBtn"><b>B</b></button>
+    <button id="italicBtn"><i>I</i></button>
+    <button id="underlineBtn"><u>U</u></button>
+    <button id="analyzeBtn">Analyze</button>
+    <button id="explainBtn">Explain</button>
+    <button id="improveBtn">Improve</button>
+    <button id="answerBtn">Answer</button>
+    <span id="status">ready</span>
+  </div>
+    <div id="mainContainer">
+        <div id="feedback"></div>
+        <div id="editor" contenteditable="true" spellcheck="true"></div>
+    </div>
+  
+
+  <div id="explainPopup">
+  <div id="explainHeader">
+    Explanation
+    <span id="closeExplain">×</span>
+  </div>
+  <div id="explainContent"></div>
+</div>
+
+  <script src="script.js"></script>
+</body>
+</html>
