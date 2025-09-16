@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Study Helper</title>
+  <title>AI Document</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -11,10 +11,12 @@
     <button id="boldBtn"><b>B</b></button>
     <button id="italicBtn"><i>I</i></button>
     <button id="underlineBtn"><u>U</u></button>
-    <button id="analyzeBtn">Analyze</button>
-    <button id="explainBtn">Explain</button>
-    <button id="improveBtn">Improve</button>
-    <button id="answerBtn">Answer</button>
+  <div id="contextMenu" class="context-menu">
+    <div data-action="explain">Explain</div>
+    <div data-action="analyze">Analyze</div>
+    <div data-action="improve">Improve</div>
+    <div data-action="answer">Answer</div>
+  </div>
     <span id="status">ready</span>
   </div>
     <div id="mainContainer">

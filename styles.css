@@ -173,3 +173,26 @@ body {
   margin-top: 50px;
   gap: 40px; 
 }
+
+.context-menu {
+  position: absolute;
+  display: none;
+  background: #fff;
+  color: #333;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  min-width: 140px;
+  z-index: 2000;
+  font-size: 14px;
+  overflow: hidden;
+}
+
+.context-menu div {
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+.context-menu div:hover {
+  background: #f0f0f0;
+}
