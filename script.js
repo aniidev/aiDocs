@@ -7,20 +7,22 @@ const explainPopup = document.getElementById("explainPopup");
 const explainContent = document.getElementById("explainContent");
 const closeExplain = document.getElementById("closeExplain");
 
-
 let savedRange = null;
-editor.addEventListener('mouseup', saveSelection);
-editor.addEventListener('keyup', saveSelection);
-editor.addEventListener('contextmenu', (e) => {
-  e.preventDefault();
-  saveSelection(); // make sure selection is saved
+editor.addEventListener("mouseup", saveSelection);
+editor.addEventListener("keyup", saveSelection);
 
-  // Position and show context menu
+// Context menu (single handler, keeps selection)
+editor.addEventListener("contextmenu", (e) => {
+  e.preventDefault();
+  saveSelection(); // ensure selection is saved
   contextMenu.style.top = `${e.pageY}px`;
   contextMenu.style.left = `${e.pageX}px`;
-  contextMenu.style.display = 'block';
+  contextMenu.style.display = "block";
 });
 
+document.addEventListener("click", () => {
+  contextMenu.style.display = "none";
+});
 
 // Helpers
 function getDocumentText() {
@@ -42,7 +44,54 @@ function saveSelection() {
   }
 }
 
-// Answer / Explain 
+// Insert AI suggestion with Keep/Delete options
+function insertSuggestion(range, original, updated) {
+  const suggestion = document.createElement("span");
+  suggestion.className = "ai-suggestion";
+  
+  const highlighted = document.createElement("span");
+  highlighted.className = "highlighted-text";
+  highlighted.textContent = updated;
+  suggestion.appendChild(highlighted);
+
+  const actions = document.createElement("span");
+  actions.className = "actions";
+  actions.innerHTML = `<span class="keep">✔</span><span class="delete">✖</span>`;
+  suggestion.appendChild(actions);
+
+  range.deleteContents();
+  range.insertNode(suggestion);
+
+  const keepFn = () => {
+    const plain = document.createTextNode(updated);
+    suggestion.replaceWith(plain);
+    feedbackEl.innerText = "Kept AI suggestion.";
+    document.removeEventListener("keydown", enterHandler); // cleanup
+  };
+
+  const deleteFn = () => {
+    const plain = document.createTextNode(original);
+    suggestion.replaceWith(plain);
+    feedbackEl.innerText = "Deleted AI suggestion.";
+    document.removeEventListener("keydown", enterHandler); // cleanup
+  };
+
+  // Click handlers
+  actions.querySelector(".keep").addEventListener("click", keepFn);
+  actions.querySelector(".delete").addEventListener("click", deleteFn);
+
+  // Enter key accepts suggestion
+  const enterHandler = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      keepFn();
+    }
+  };
+
+  document.addEventListener("keydown", enterHandler);
+}
+
+// Answer / Explain
 async function analyzeDocument(mode = "full") {
   let range = null;
   let textToSend = "";
@@ -88,13 +137,13 @@ async function analyzeDocument(mode = "full") {
         explainContent.appendChild(div);
       });
       explainPopup.style.display = "block";
-    } else if (range) {
+    } else if ((range = getSelectedRange())) {
       const updated = data.updatedText || textToSend;
-      range.deleteContents();
-      range.insertNode(document.createTextNode(updated));
-      feedbackEl.innerText = "AI updated selected text.";
+      insertSuggestion(range, textToSend, updated);
+      feedbackEl.innerText = "AI suggested an edit.";
     } else {
-      setEditorText(data.updatedText || textToSend);
+      const updated = data.updatedText || textToSend;
+      setEditorText(updated);
       feedbackEl.innerText = "AI updated the document.";
     }
   } catch (err) {
@@ -103,18 +152,7 @@ async function analyzeDocument(mode = "full") {
   }
 }
 
-// Context menu handling
-editor.addEventListener("contextmenu", (e) => {
-  e.preventDefault();
-  contextMenu.style.display = "block";
-  contextMenu.style.left = `${e.pageX}px`;
-  contextMenu.style.top = `${e.pageY}px`;
-});
-
-document.addEventListener("click", () => {
-  contextMenu.style.display = "none";
-});
-
+// Context menu action
 contextMenu.addEventListener("click", (e) => {
   const action = e.target.getAttribute("data-action");
   if (action) {
@@ -128,7 +166,7 @@ closeExplain.addEventListener("click", () => {
   explainPopup.style.display = "none";
 });
 
-// Ctrl+Enter to run full analysis
+// Ctrl+Enter = analyze whole doc
 editor.addEventListener("keydown", (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
     e.preventDefault();

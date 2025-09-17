@@ -194,3 +194,32 @@ body {
 .context-menu div:hover {
   background: #f0f0f0;
 }
+
+.ai-suggestion {
+  background-color: #fff8b3; /* yellow highlight */
+  border-radius: 4px;
+  padding: 2px 4px;
+  margin: 0 2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ai-suggestion .highlighted-text {
+  font-weight: bold;
+}
+
+.ai-suggestion .actions {
+  margin-left: 6px;
+  font-size: 0.85em;
+  cursor: pointer;
+}
+
+.ai-suggestion .keep {
+  color: green;
+  margin-right: 4px;
+}
+
+.ai-suggestion .delete {
+  color: red;
+}
