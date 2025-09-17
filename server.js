@@ -30,15 +30,28 @@ Return ONLY valid JSON between <json> and </json> tags. Do not include anything 
 Text: """${text}"""`;
     } else if (mode === 'expand') {
       prompt = `You are an AI note-taking assistant.
-Do NOT repeat or rewrite any text already present in the input.
-Only append new content after the input text.
-If the AI accidentally repeats any part of the input, remove the duplicate.
+Do NOT rewrite or change any existing text. Only append new content after the input text.
+Do NOT repeat any phrases already present.
 Return ONLY valid JSON between <json> and </json> tags.
 
 <json>
 {
   "updatedText": "<text to append>",
   "feedback": "AI added new content"
+}
+</json>
+
+Text: """${text}"""`;
+    } else if (mode === 'grammar') {
+      prompt = `You are an AI note-taking assistant.
+Do NOT change any words, terms, or formatting in the text.
+Only correct grammar, punctuation, and capitalization.
+Return ONLY valid JSON between <json> and </json> tags.
+
+<json>
+{
+  "updatedText": "<text with grammar corrected>",
+  "feedback": "AI fixed grammar"
 }
 </json>
 
@@ -78,19 +91,18 @@ Text: """${text}"""`;
     const apiData = await response.json();
     let raw = apiData.choices?.[0]?.message?.content || '';
 
-    // Extract JSON from <json> tags
     let parsed;
     try {
       const match = raw.match(/<json>([\s\S]*?)<\/json>/);
       const jsonString = match ? match[1].trim() : raw.trim();
       parsed = JSON.parse(jsonString);
-      
-      // Extra safety: remove any duplication for expand mode
+
       if (mode === 'expand' && parsed.updatedText) {
         if (parsed.updatedText.startsWith(text)) {
           parsed.updatedText = parsed.updatedText.slice(text.length).trimStart();
         }
       }
+
     } catch (err) {
       console.error("JSON parse error, raw:", raw);
       if (mode === 'explain') {
