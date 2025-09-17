@@ -14,10 +14,10 @@ app.post('/analyze', async (req, res) => {
   try {
     const { text, mode } = req.body;
 
-    // Build prompt differently for each mode
     let prompt;
- if (mode === 'explain') {
-  prompt = `You are an AI note-taking assistant.
+
+    if (mode === 'explain') {
+      prompt = `You are an AI note-taking assistant.
 Identify key concepts in the text. If a line contains a ":", treat the part before ":" as a term and the part after as its definition. Keep terms as-is and generate concise explanations if needed.
 Return ONLY valid JSON between <json> and </json> tags. Do not include anything else.
 <json>
@@ -28,8 +28,23 @@ Return ONLY valid JSON between <json> and </json> tags. Do not include anything 
 }
 </json>
 Text: """${text}"""`;
-} else {
-  prompt = `You are a smart AI note-taking assistant.
+    } else if (mode === 'expand') {
+      prompt = `You are an AI note-taking assistant.
+Do NOT repeat or rewrite any text already present in the input.
+Only append new content after the input text.
+If the AI accidentally repeats any part of the input, remove the duplicate.
+Return ONLY valid JSON between <json> and </json> tags.
+
+<json>
+{
+  "updatedText": "<text to append>",
+  "feedback": "AI added new content"
+}
+</json>
+
+Text: """${text}"""`;
+    } else {
+      prompt = `You are a smart AI note-taking assistant.
 Mode: ${mode}. Your task is to edit the text as if you are taking notes. 
 Rules:
 - If a line contains a ":", keep the term before ":" and provide a short definition or clarification.
@@ -43,8 +58,7 @@ Return ONLY valid JSON between <json> and </json> tags. Do not include anything 
 }
 </json>
 Text: """${text}"""`;
-}
-
+    }
 
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -64,38 +78,41 @@ Text: """${text}"""`;
     const apiData = await response.json();
     let raw = apiData.choices?.[0]?.message?.content || '';
 
-    // Try to parse the JSON returned by the AI
-   let parsed;
-try {
-  // Extract the JSON inside <json> ... </json>
-  const match = raw.match(/<json>([\s\S]*?)<\/json>/);
-  const jsonString = match ? match[1].trim() : raw.trim();
+    // Extract JSON from <json> tags
+    let parsed;
+    try {
+      const match = raw.match(/<json>([\s\S]*?)<\/json>/);
+      const jsonString = match ? match[1].trim() : raw.trim();
+      parsed = JSON.parse(jsonString);
+      
+      // Extra safety: remove any duplication for expand mode
+      if (mode === 'expand' && parsed.updatedText) {
+        if (parsed.updatedText.startsWith(text)) {
+          parsed.updatedText = parsed.updatedText.slice(text.length).trimStart();
+        }
+      }
+    } catch (err) {
+      console.error("JSON parse error, raw:", raw);
+      if (mode === 'explain') {
+        parsed = {
+          highlights: [
+            { start: 0, end: text.length, text, explanation: 'Parsing failed: ' + raw }
+          ]
+        };
+      } else {
+        parsed = {
+          updatedText: text,
+          feedback: 'Unable to parse AI response properly'
+        };
+      }
+    }
 
-  parsed = JSON.parse(jsonString);
-} catch (err) {
-  console.error("JSON parse error, raw:", raw);
-
-  if (mode === 'explain') {
-    parsed = {
-      highlights: [
-        { start: 0, end: text.length, text, explanation: 'Parsing failed: ' + raw }
-      ]
-    };
-  } else {
-    parsed = {
-      updatedText: text,
-      feedback: 'Unable to parse AI response properly'
-    };
-  }
-}
-
-    // Send always as proper JSON
     res.json(parsed);
+
   } catch (err) {
     console.error('Server error while contacting Groq', err);
     res.status(500).json({ error: 'server error' });
   }
 });
-
 
 app.listen(3000, () => console.log('Server running on http://localhost:3000'));
