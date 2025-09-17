@@ -7,10 +7,7 @@ const explainPopup = document.getElementById("explainPopup");
 const explainContent = document.getElementById("explainContent");
 const closeExplain = document.getElementById("closeExplain");
 
-// Toolbar formatting
-document.getElementById("boldBtn").addEventListener("click", () => document.execCommand("bold"));
-document.getElementById("italicBtn").addEventListener("click", () => document.execCommand("italic"));
-document.getElementById("underlineBtn").addEventListener("click", () => document.execCommand("underline"));
+
 let savedRange = null;
 editor.addEventListener('mouseup', saveSelection);
 editor.addEventListener('keyup', saveSelection);
@@ -45,12 +42,12 @@ function saveSelection() {
   }
 }
 
-// Analyze / Explain / Improve / Answer
+// Answer / Explain 
 async function analyzeDocument(mode = "full") {
   let range = null;
   let textToSend = "";
 
-  if (mode === "explain" || mode === "answer" || mode === "improve") {
+  if (mode === "explain") {
     range = getSelectedRange();
     if (!range || range.toString().trim() === "") {
       feedbackEl.innerText = "Select some text first.";
@@ -87,7 +84,7 @@ async function analyzeDocument(mode = "full") {
       (data.highlights || []).forEach((h) => {
         const div = document.createElement("div");
         div.style.marginBottom = "8px";
-        div.innerHTML = `<strong>${h.text}:</strong> ${h.explanation || "No explanation."}`;
+        div.innerHTML = `${h.explanation || "No explanation."}`;
         explainContent.appendChild(div);
       });
       explainPopup.style.display = "block";

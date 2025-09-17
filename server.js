@@ -16,22 +16,17 @@ app.post('/analyze', async (req, res) => {
 
     // Build prompt differently for each mode
     let prompt;
-if(mode === 'answer') {
-  prompt = `You are an AI that answers the following question directly. Return ONLY the answer text, no extra commentary. Return JSON like:
-{
-  "updatedText": "<answer text>",
-  "feedback": "<optional feedback>"
-}
-Question: """${text}"""`;
-} else if(mode === 'explain') {
+ if (mode === 'explain') {
   prompt = `You are an AI note-taking assistant.
 Identify key concepts in the text. If a line contains a ":", treat the part before ":" as a term and the part after as its definition. Keep terms as-is and generate concise explanations if needed.
-Return EXACTLY this JSON format:
+Return ONLY valid JSON between <json> and </json> tags. Do not include anything else.
+<json>
 {
   "highlights":[
     {"start":<start index>,"end":<end index>,"text":"<highlighted text>","explanation":"<short explanation>"}
   ]
 }
+</json>
 Text: """${text}"""`;
 } else {
   prompt = `You are a smart AI note-taking assistant.
@@ -40,13 +35,16 @@ Rules:
 - If a line contains a ":", keep the term before ":" and provide a short definition or clarification.
 - Preserve all original terms.
 - Make edits concise and clear for studying.
-Return JSON like:
+Return ONLY valid JSON between <json> and </json> tags. Do not include anything else.
+<json>
 {
   "updatedText": "<full document text with AI improvements inserted>",
   "feedback": "<short description of changes>"
 }
+</json>
 Text: """${text}"""`;
 }
+
 
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -67,22 +65,29 @@ Text: """${text}"""`;
     let raw = apiData.choices?.[0]?.message?.content || '';
 
     // Try to parse the JSON returned by the AI
-    let parsed;
-    try {
-      parsed = JSON.parse(raw);
-    } catch {
-      // If parsing fails, wrap raw text into proper JSON
-      if (mode === 'explain') {
-        parsed = {
-          highlights: [{ start: 0, end: text.length, text, explanation: raw || 'No explanation generated' }]
-        };
-      } else {
-        parsed = {
-          updatedText: raw || text,
-          feedback: 'Unable to parse AI response properly'
-        };
-      }
-    }
+   let parsed;
+try {
+  // Extract the JSON inside <json> ... </json>
+  const match = raw.match(/<json>([\s\S]*?)<\/json>/);
+  const jsonString = match ? match[1].trim() : raw.trim();
+
+  parsed = JSON.parse(jsonString);
+} catch (err) {
+  console.error("JSON parse error, raw:", raw);
+
+  if (mode === 'explain') {
+    parsed = {
+      highlights: [
+        { start: 0, end: text.length, text, explanation: 'Parsing failed: ' + raw }
+      ]
+    };
+  } else {
+    parsed = {
+      updatedText: text,
+      feedback: 'Unable to parse AI response properly'
+    };
+  }
+}
 
     // Send always as proper JSON
     res.json(parsed);
