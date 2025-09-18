@@ -102,18 +102,19 @@ async function analyzeDocument(mode = "full") {
 
 // Insert AI suggestion with Keep/Delete/Expand
 function insertSuggestion(range, original, updated) {
-  const suggestion = document.createElement("span");
-  suggestion.className = "ai-suggestion";
-
   const textSpan = document.createElement("span");
-  textSpan.className = "ai-text";
-  textSpan.textContent = updated; 
-  suggestion.appendChild(textSpan);
+textSpan.className = "suggestion-text";
+textSpan.textContent = updated;
 
-  const actions = document.createElement("span");
-  actions.className = "actions";
-  actions.innerHTML = `<span class="keep">✔</span><span class="delete">✖</span><span class="expand">➕</span>`;
-  suggestion.appendChild(actions);
+const actions = document.createElement("span");
+actions.className = "actions";
+actions.innerHTML = `<span class="keep">Y</span><span class="delete">N</span><span class="expand">+</span>`;
+
+const suggestion = document.createElement("span");
+suggestion.className = "ai-suggestion";
+suggestion.appendChild(textSpan);
+suggestion.appendChild(actions);
+
 
   range.deleteContents();
   range.insertNode(suggestion);

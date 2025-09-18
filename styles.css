@@ -167,10 +167,10 @@ body {
 
 #mainContainer {
   display: flex;
-  justify-content: center; /* center the editor horizontally */
+  justify-content: center;
   align-items: flex-start;
   margin-top: 50px;
-  gap: 40px; 
+  gap: 40px;
 }
 
 .context-menu {
@@ -196,30 +196,67 @@ body {
 }
 
 .ai-suggestion {
-  background-color: #fff8b3; /* yellow highlight */
+  background-color: #c7ffb3;
   border-radius: 4px;
   padding: 2px 4px;
   display: inline-flex;
-  align-items: center;
+  align-items: flex-start; /* ensures both children align at top */
   gap: 4px;
 }
 
+.ai-suggestion .suggestion-text {
+  line-height: 1.4;
+}
+
 .ai-suggestion .actions {
+  margin-top: 0;
+  margin-left: 10px;
+  display: flex;
+}
+
+.ai-suggestion .actions span {
+  display: inline-block;
+  padding: 1px 5px;
   font-size: 0.85em;
+  font-weight: bold;
   cursor: pointer;
+  color: #fff;
+  line-height: 1.2;
 }
 
-.ai-suggestion .keep {
-  color: green;
-  margin-left: 4px;
+.ai-suggestion .actions .keep {
+  background-color: #28a745; /* green */
+  border-radius: 0px 0px 0px 4px;
 }
 
-.ai-suggestion .delete {
-  color: red;
-  margin-left: 2px;
+.ai-suggestion .actions .delete {
+  background-color: #dc3545; /* red */
+  border-radius: 0px 0px 0px 0px;
 }
 
-.ai-suggestion .expand {
-  color: blue;
-  margin-left: 2px;
+.ai-suggestion .actions .expand {
+  background-color: #007bff; /* blue */
+  border-radius: 0px 0px 4px 0px;
+}
+
+#sidePanel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex-shrink: 0;
+}
+
+.videos {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+
+.videos iframe {
+  width: 285px;      /* match feedback width */
+  height: 180px;
+  border-radius: 6px;
+  border: none;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
